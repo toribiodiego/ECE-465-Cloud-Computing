@@ -1,5 +1,5 @@
 
-> This repository contains the code for **ECE 465: Cloud Computing**, a graduate-level, 3-credit course offering hands-on deep learning experience with PyTorch at The Cooper Union for the Advancement for Art and Science . 
+> This repository contains the code for **ECE 465: Cloud Computing**, a 3-credit graduate-level course at The Cooper Union for the Advancement of Science and Art, providing hands-on experience in cloud computing.
 
 ## Cloud-Computing  
 **Spring 2025 Independent Study**  
