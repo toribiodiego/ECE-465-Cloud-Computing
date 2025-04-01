@@ -1,9 +1,26 @@
-# Distributed Reinforcement Learning for Tic-Tac-Toe with Cloud Deployment
 
-This directory contains my ongoing final project for the **Cloud Computing (ECE-465)** course, focusing on enhancing reinforcement learning (RL) training efficiency and scalability using distributed computing. Specifically, the project leverages Ray's distributed framework to accelerate Proximal Policy Optimization (PPO) training for a Tic-Tac-Toe agent.
 
-## Project Overview
 
-**Objective:**  
-To significantly improve training performance and scalability for an RL agent by parallelizing Tic-Tac-Toe self-play simulations using Ray. This approach transitions from a single-CPU training setup to a multi-core, multi-node distributed architecture, speeding up the training and deployment lifecycle.
+## Project Overview and Progress
 
+**Current Focus:**  
+We're currently exploring distributed hyperparameter tuning using Ray Tune on the MNIST dataset. This allows us to familiarize ourselves with the Ray framework, especially for CPU-bound tasks, by parallelizing training trials across all available cores.
+
+**What We've Accomplished So Far:**
+
+- **Ray Tune Integration:**  
+  We've integrated Ray Tune to run 12 parallel experiments across our 12-core machine, efficiently distributing the hyperparameter search space.
+
+- **Logging Improvements:**  
+  Metrics are being logged to Weights & Biases (WandB), and we've implemented configuration changes (including environment variable settings and monkey patching) to suppress excessive console output from WandB.
+
+- **Results Presentation:**  
+  After completing the tuning, results are summarized and printed as a DataFrame table, giving us clear insights into the performance of each trial.
+
+**Scaffolding Towards Our End Goal:**
+
+- **Containerization & Cloud Scaling:**  
+  With our current setup validated locally on MNIST, our next step is to containerize this process (using tools like RayKube) so we can leverage cloud infrastructure with many more cores. This will help us further accelerate CPU-bound processes.
+
+- **Transition to Reinforcement Learning (RL):**  
+  Our long-term goal is to tackle CPU-intensive experience rollouts in RL. Once we move from MNIST to more complex tasks (e.g., deep Q-learning or PPO for RL agents), we plan to parallelize the rollout generation. This will alleviate CPU bottlenecks that often limit the training speed and overall effectiveness of RL agents.
