@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mnist-ray-tune
+  labels:
+    app: mnist-ray-tune
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mnist-ray-tune
+  template:
+    metadata:
+      labels:
+        app: mnist-ray-tune
+    spec:
+      containers:
+        - name: mnist-ray-tune
+          image: <your-registry>/mnist-ray-tune:latest
+          ports:
+            - containerPort: 8265
+          volumeMounts:
+            - name: env-file
+              mountPath: /app/.env
+              subPath: .env
+          resources:
+            requests:
+              cpu: "1"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+      volumes:
+        - name: env-file
+          secret:
+            secretName: my-env-secret
