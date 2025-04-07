@@ -10,6 +10,8 @@
 
 This independent study provides a practical introduction to cloud computing, focusing on distributed systems, containerization, and modern DevOps practices. Through in-depth exploration of topics like distributed training, multi-threaded programming, and cloud deployment techniques, students gain both theoretical insights and hands-on experience needed to design and scale production-ready applications.
 
+### Material
+
 - Multi-processing and network programming  
 - Docker and Kubernetes  
 - CI/CD pipelines  
@@ -17,6 +19,22 @@ This independent study provides a practical introduction to cloud computing, foc
 - Cloud-based deployment on virtual and Kubernetes nodes  
 
 ### Repository Structure  
+
+```
+.
+├── Final_Project
+│   ├── Dockerfile
+│   ├── README.md
+│   ├── deployment.yaml
+│   ├── main.py
+│   ├── notebooks
+│   │   └── train.ipynb
+│   ├── requirements.txt
+│   └── service.yaml
+├── PS01.ipynb
+└── README.md
+```
+
 - **PS01.ipynb**: Dining Philosophers Problem (Concurrency and Deadlock Prevention)  
 
 ### Final Project
