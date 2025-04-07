@@ -12,11 +12,13 @@ This independent study provides a practical introduction to cloud computing, foc
 
 ### Material
 
-- Multi-processing and network programming  
-- Docker and Kubernetes  
-- CI/CD pipelines  
-- Distributed architectures, consistency, replication, and fault tolerance  
-- Cloud-based deployment on virtual and Kubernetes nodes  
+The primary resource for the course is *Distributed Systems, 4th ed.* by Andrew Tanenbaum and Maarten van Steen, which lays the foundation for understanding the evolution of cloud computing from distributed systems. Complementing this, students will explore various online resources and hands-on examples that illuminate key technologies and best practices in modern cloud computing.
+
+- Multi-processing and network programming techniques  
+- Containerization with Docker and orchestration with Kubernetes  
+- CI/CD pipelines for efficient development and deployment  
+- Distributed architectures focusing on consistency, replication, and fault tolerance  
+- Cloud-based deployment on virtual nodes and Kubernetes clusters
 
 ### Repository Structure  
 
