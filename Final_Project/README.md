@@ -1,26 +1,33 @@
 
+> This directory contains the final project for **ECE‑465: Cloud Computing**, focusing on addressing CPU-bound bottlenecks with Ray and leveraging containerization using Kubernetes for scalable distributed training.
 
 
-## Project Overview and Progress
+### Objective  
+Our goal is to overcome CPU-bound limitations in distributed training by harnessing Ray for efficient hyperparameter tuning and containerizing our workflow with Kubernetes. This project aims to build a scalable framework that can transition from simpler tasks, like tuning on MNIST, to more complex challenges such as reinforcement learning.
 
-**Current Focus:**  
-We're currently exploring distributed hyperparameter tuning using Ray Tune on the MNIST dataset. This allows us to familiarize ourselves with the Ray framework, especially for CPU-bound tasks, by parallelizing training trials across all available cores.
 
-**What We've Accomplished So Far:**
 
-- **Ray Tune Integration:**  
-  We've integrated Ray Tune to run 12 parallel experiments across our 12-core machine, efficiently distributing the hyperparameter search space.
+### Approach  
+We begin by integrating Ray Tune to execute parallel hyperparameter searches on the MNIST dataset across multiple CPU cores. Once we establish a robust local workflow, we plan to containerize our process with Kubernetes, enabling deployment on cloud infrastructure with significantly more computing power. This setup will not only streamline the tuning process but also set the stage for scaling to CPU-intensive applications, including reinforcement learning tasks.
 
-- **Logging Improvements:**  
-  Metrics are being logged to Weights & Biases (WandB), and we've implemented configuration changes (including environment variable settings and monkey patching) to suppress excessive console output from WandB.
 
-- **Results Presentation:**  
-  After completing the tuning, results are summarized and printed as a DataFrame table, giving us clear insights into the performance of each trial.
+### Progress
 
-**Scaffolding Towards Our End Goal:**
+- [x] **Parallel Hyperparameter Tuning with Ray:**  
+  Set up and run distributed hyperparameter tuning on the MNIST dataset using Ray Tune.
 
-- **Containerization & Cloud Scaling:**  
-  With our current setup validated locally on MNIST, our next step is to containerize this process (using tools like RayKube) so we can leverage cloud infrastructure with many more cores. This will help us further accelerate CPU-bound processes.
+- [x] **Containerization:**  
+  Containerized the entire workflow and deployed it on a Minikube Kubernetes cluster.
 
-- **Transition to Reinforcement Learning (RL):**  
-  Our long-term goal is to tackle CPU-intensive experience rollouts in RL. Once we move from MNIST to more complex tasks (e.g., deep Q-learning or PPO for RL agents), we plan to parallelize the rollout generation. This will alleviate CPU bottlenecks that often limit the training speed and overall effectiveness of RL agents.
+- [ ] **Scaling on Cloud Infrastructure:**  
+  Plan to extend containerization to a full cloud-based Kubernetes deployment using RayKube.
+
+- [ ] **Transition to Reinforcement Learning:**  
+  Aim to apply the established framework to CPU-intensive reinforcement learning tasks.
+
+
+### Repository Structure
+
+```
+```
+
