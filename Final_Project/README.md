@@ -26,8 +26,29 @@ We begin by integrating Ray Tune to execute parallel hyperparameter searches on 
   Aim to apply the established framework to CPU-intensive reinforcement learning tasks.
 
 
-### Repository Structure
+### Directory Structure
 
 ```
+.
+├── Dockerfile
+├── README.md
+├── deployment.yaml
+├── documentation.md
+├── main.py
+├── notebooks
+│   └── train.ipynb
+├── requirements.txt
+└── service.yaml
 ```
 
+<br>
+
+### Results
+
+
+<br>
+
+### References
+
+
+<br>
