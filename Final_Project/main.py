@@ -13,17 +13,18 @@ from torchvision.datasets import MNIST
 from torchvision.transforms import ToTensor
 import wandb
 from tqdm import tqdm
+import time
 
 # Load environment variables from the .env file
 from dotenv import load_dotenv
-load_dotenv()  # This will load variables from .env into os.environ
+load_dotenv()
 
 # Global configuration dictionary; keys come exclusively from the environment.
 config = {
     "wandb_api_key": os.getenv("WANDB_API_KEY"),
     "resource": {
-        "total_cpus": 1,
-        "num_tasks": 1,
+        "total_cpus": 2,
+        "num_tasks": 2,
         "cpus_per_task": 1,
         "gpus_per_task": 0
     },
@@ -39,9 +40,14 @@ config = {
 
 def setup_environment(config):
     """
-    Initialize wandb.
+    Initialize wandb. If no API key is set, switch to offline mode.
     """
-    wandb.login(key=config["wandb_api_key"])
+    key = config.get("wandb_api_key")
+    if key:
+        wandb.login(key=key)
+    else:
+        print("WANDB_API_KEY not set; running in offline mode.")
+        os.environ["WANDB_MODE"] = "offline"
 
 class CustomModel(nn.Module):
     """
@@ -75,10 +81,8 @@ def build_model_and_optimizer(tune_config, device):
     """
     model = CustomModel(layer_size=tune_config["layer_size"], dropout_rate=tune_config["dropout_rate"])
     model.to(device)
-    if tune_config["optimizer"] == "adam":
-        optimizer = optim.Adam(model.parameters(), lr=tune_config["lr"])
-    else:
-        optimizer = optim.SGD(model.parameters(), lr=tune_config["lr"])
+    optimizer_cls = optim.Adam if tune_config["optimizer"] == "adam" else optim.SGD
+    optimizer = optimizer_cls(model.parameters(), lr=tune_config["lr"])
     criterion = nn.CrossEntropyLoss()
     return model, optimizer, criterion
 
@@ -87,10 +91,7 @@ def train_one_epoch(model, train_loader, optimizer, criterion, device):
     Train the model for one epoch and return the average loss and accuracy.
     """
     model.train()
-    train_loss_sum = 0.0
-    train_correct = 0
-    train_total = 0
-
+    total_loss, total_correct, total_samples = 0.0, 0, 0
     for inputs, labels in train_loader:
         inputs, labels = inputs.to(device), labels.to(device)
         optimizer.zero_grad()
@@ -98,37 +99,28 @@ def train_one_epoch(model, train_loader, optimizer, criterion, device):
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
-        train_loss_sum += loss.item()
+        total_loss += loss.item()
         _, predicted = torch.max(outputs, 1)
-        train_correct += (predicted == labels).sum().item()
-        train_total += labels.size(0)
-
-    avg_loss = train_loss_sum / len(train_loader)
-    accuracy = train_correct / train_total
-    return avg_loss, accuracy
+        total_correct += (predicted == labels).sum().item()
+        total_samples += labels.size(0)
+    return total_loss / len(train_loader), total_correct / total_samples
 
 def validate_model(model, test_loader, criterion, device):
     """
     Evaluate the model on the test data and return the average loss and accuracy.
     """
     model.eval()
-    val_loss_sum = 0.0
-    val_correct = 0
-    val_total = 0
-
+    total_loss, total_correct, total_samples = 0.0, 0, 0
     with torch.no_grad():
         for inputs, labels in test_loader:
             inputs, labels = inputs.to(device), labels.to(device)
             outputs = model(inputs)
             loss = criterion(outputs, labels)
-            val_loss_sum += loss.item()
+            total_loss += loss.item()
             _, predicted = torch.max(outputs, 1)
-            val_correct += (predicted == labels).sum().item()
-            val_total += labels.size(0)
-
-    avg_loss = val_loss_sum / len(test_loader)
-    accuracy = val_correct / val_total
-    return avg_loss, accuracy
+            total_correct += (predicted == labels).sum().item()
+            total_samples += labels.size(0)
+    return total_loss / len(test_loader), total_correct / total_samples
 
 def log_and_report(epoch, train_loss, train_accuracy, val_loss, val_accuracy):
     """
@@ -153,17 +145,15 @@ def train_model(tune_config):
     train_loader, test_loader = get_data_loaders(tune_config["batch_size"])
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model, optimizer, criterion = build_model_and_optimizer(tune_config, device)
-
     for epoch in range(tune_config["epochs"]):
-        train_loss, train_accuracy = train_one_epoch(model, train_loader, optimizer, criterion, device)
-        val_loss, val_accuracy = validate_model(model, test_loader, criterion, device)
-        log_and_report(epoch, train_loss, train_accuracy, val_loss, val_accuracy)
-
+        train_loss, train_acc = train_one_epoch(model, train_loader, optimizer, criterion, device)
+        val_loss, val_acc = validate_model(model, test_loader, criterion, device)
+        log_and_report(epoch, train_loss, train_acc, val_loss, val_acc)
     run.finish()
 
 def initialize_ray(config):
     """
-    Shutdown any existing Ray instance and initialize Ray with the specified resource parameters.
+    Shutdown any existing Ray instance and initialize Ray with specified resource parameters.
     """
     ray.shutdown()
     ray.init(num_cpus=config["resource"]["total_cpus"],
@@ -198,6 +188,9 @@ def main():
     setup_environment(config)
     run_ray_tune(config)
     ray.shutdown()
+    print("Tuning complete; entering idle loop so dashboard stays up on :8265")
+    while True:
+        time.sleep(60)
 
 if __name__ == "__main__":
     main()

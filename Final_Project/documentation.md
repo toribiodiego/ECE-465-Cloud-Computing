@@ -11,6 +11,77 @@ Our project, *Distributed Reinforcement Learning for Tic-Tac-Toe*, transforms a 
 - **Kubernetes:** Orchestrates our containers, with current testing on Minikube.
 
 
+### Replication
+
+Follow these steps to replicate our environment and run the hyperparameter tuning from scratch:
+
+1. **Clone the repository**  
+   ```bash
+   git clone https://github.com/toribiodiego/ECE-465-Cloud-Computing.git
+   cd ECE-465-Cloud-Computing/Final_Project
+   ```
+
+2. **Create a `.env` file**  
+   In the `Final_Project` directory, create a file named `.env` containing:
+   ```env
+   WANDB_API_KEY=<your_wandb_api_key>
+   ```
+   Replace `<your_wandb_api_key>` with your actual WandB API key.
+
+3. **Build the Docker image**  
+   ```bash
+   docker build -t mnist-ray-tune:latest .
+   ```
+
+4. **Run locally (optional)**  
+   To verify the container in isolation:
+   ```bash
+   docker run --rm \
+     -e WANDB_API_KEY \
+     -p 8265:8265 \
+     mnist-ray-tune:latest
+   ```
+   Then visit `http://localhost:8265` to open the Ray dashboard.
+
+5. **Set up Minikube (optional)**  
+   - Start Minikube with 2 CPUs and ~2 GB RAM:
+     ```bash
+     minikube start --cpus=2 --memory=2200mb
+     eval $(minikube docker-env)
+     ```  
+   - Build the image into Minikube’s Docker daemon:
+     ```bash
+     docker build -t mnist-ray-tune:latest .
+     ```
+
+6. **Deploy to Kubernetes**  
+   - Create a secret from your `.env`:
+     ```bash
+     kubectl create secret generic my-env-secret --from-file=.env
+     ```
+   - Apply the Deployment and Service:
+     ```bash
+     kubectl apply -f deployment.yaml
+     kubectl apply -f service.yaml
+     ```
+   - Wait until the pod is `Running`:
+     ```bash
+     kubectl get pods -w
+     ```
+   - Expose & access the service:
+     ```bash
+     minikube service mnist-ray-tune-service
+     ```
+   - Tail the live logs of your two concurrent trials:
+     ```bash
+     kubectl logs deployment/mnist-ray-tune --since=5s -f
+     ```
+
+7. **Verify results**  
+   Open the URL printed by `minikube service` in your browser. You should see two trials running in parallel on the Ray dashboard, and you can inspect their metrics and stdout there.
+
+
+
 ### Containerization
 
 We containerized our training process to ensure consistent behavior across all environments. Our `Dockerfile` serves as the blueprint for this, defining everything needed to run our application reliably. Specifically, it achieves the following:
