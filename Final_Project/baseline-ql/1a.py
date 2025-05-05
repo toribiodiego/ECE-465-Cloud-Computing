@@ -1,13 +1,13 @@
-# main.py
 import random
 import numpy as np
-from collections import defaultdict
+from collections import defaultdict, deque
 from tqdm import trange
 from typing import Tuple
 
 import gym
-import torch
-import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib.patches as mpatches
 
 # --- Reuse your TicTacToeWrapper ---
 class TicTacToeEnv(gym.Env):
@@ -101,39 +101,90 @@ class QLearningAgent:
         target = reward + self.gamma * max_q_next
         self.q[(k,action)] += self.alpha * (target - q_sa)
 
-# --- Training Loop ---
-def train(env, agent, episodes=50_000):
-    stats = {'wins':0, 'losses':0, 'draws':0}
+# --- Training Loop with Reward Logging ---
+def train(env, agent, episodes=50000, window=100):
+    episode_rewards = []
+    running_avg = []
+    rewards_deque = deque(maxlen=window)
+
     for ep in trange(episodes, desc="QLearning"):
         obs,_ = env.reset()
         done = False
+        total_reward = 0.0
+
         while not done:
-            # agent plays as X (player=1)
             if env.env.state['on_move'] == 1:
                 action = agent.choose_action(obs)
             else:
-                # random opponent
                 valid = [i for i,m in enumerate(env.env.state['board']) if m==0]
                 action = random.choice(valid)
 
             next_obs, reward, done, _, info = env.step(action)
-            # only update when agent moved
+            total_reward += reward
+
             if env.env.state['on_move'] == -1 or 'illegal_move' in info:
                 agent.update(obs, action, reward, next_obs, done)
+
             obs = next_obs
 
-        # record outcome
-        if 'win' in info:
-            stats['wins'] += 1
-        elif 'draw' in info:
-            stats['draws'] += 1
-        else:
-            stats['losses'] += 1
+        episode_rewards.append(total_reward)
+        rewards_deque.append(total_reward)
+        running_avg.append(np.mean(rewards_deque))
+        agent.epsilon = max(agent.epsilon * 0.9999, 0.01)
 
-        # optional: decay ε
-        agent.epsilon = max(agent.epsilon*0.9999, 0.01)
+    return episode_rewards, running_avg
 
-    return stats
+
+
+def plot_learning_curve(episode_rewards, running_avg, window):
+    """
+    Plots the running average of episode rewards over time
+    against Episodes, with the legend placed outside.
+    """
+    # 1) Seaborn whitegrid
+    sns.set_style("whitegrid", {
+        'axes.grid':       True,
+        'axes.edgecolor': 'black'
+    })
+
+    # 2) Figure & axis
+    fig, ax = plt.subplots(figsize=(10, 5))
+    plt.rcParams['font.family'] = 'Times New Roman'
+
+    # 3) Plot curve in pure blue (#0000FF) with linewidth=1
+    color = "#0000FF"
+    ax.plot(running_avg, color=color, linewidth=1)
+
+    # 4) Legend outside top-right
+    patch = mpatches.Patch(color=color, label="Random Opponent")
+    ax.legend(
+        handles=[patch],
+        frameon=True,
+        fancybox=True,
+        prop={'family':'Times New Roman','weight':'bold','size':12},
+        loc='upper left',
+        bbox_to_anchor=(1.02, 1)
+    )
+
+    # 5) Labels & title
+    ax.set_xlabel("Episode", fontsize=16, family='Times New Roman')
+    ax.set_ylabel("Average Reward", fontsize=16, family='Times New Roman')
+    ax.set_title("Average Reward", fontsize=18, family='Times New Roman')
+
+    # 6) Customize x‑ticks every 10%
+    max_eps = len(running_avg)
+    step = max(1, max_eps // 10)
+    xticks = list(range(0, max_eps+1, step))
+    ax.set_xticks(xticks)
+    ax.set_xticklabels([str(t) for t in xticks], fontsize=12, family='Times New Roman')
+    plt.setp(ax.get_yticklabels(), fontsize=12, family='Times New Roman')
+
+    # 7) Final polish
+    sns.despine()
+    plt.tight_layout()
+    plt.show()
+
+
 
 if __name__ == "__main__":
     env = TicTacToeWrapper()
@@ -141,8 +192,7 @@ if __name__ == "__main__":
     agent = QLearningAgent(n_actions=env.action_space.n,
                            alpha=0.1, gamma=0.99, epsilon=0.2)
 
-    results = train(env, agent, episodes=20_000)
-    print("\nFinal results over 20k episodes:")
-    print(f" Wins:   {results['wins']}")
-    print(f" Draws:  {results['draws']}")
-    print(f" Losses: {results['losses']}")
+    # Phase 1a training
+    ep_rewards, avg_rewards = train(env, agent, episodes=20000, window=100)
+    plot_learning_curve(ep_rewards, avg_rewards, window=100)
+    print(f"\nFinal avg reward (last 100 eps): {avg_rewards[-1]:.3f}")
