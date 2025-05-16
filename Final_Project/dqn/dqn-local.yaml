@@ -1,0 +1,26 @@
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: dqn-local
+spec:
+  rayVersion: "2.4.0"
+  headGroupSpec:
+    replicas: 1
+    rayStartParams:
+      num-cpus: "2"
+      dashboard-host: "0.0.0.0"
+    template:
+      spec:
+        containers:
+        - name: ray-head
+          image: your-dockerhub-username/dqn:v1
+  workerGroupSpecs:
+  - groupName: worker-group
+    replicas: 4
+    rayStartParams:
+      num-cpus: "1"
+    template:
+      spec:
+        containers:
+        - name: ray-worker
+          image: your-dockerhub-username/dqn:v1
