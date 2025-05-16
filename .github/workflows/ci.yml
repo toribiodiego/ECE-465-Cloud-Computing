@@ -8,7 +8,6 @@ jobs:
   test-and-smoke:
     runs-on: ubuntu-latest
 
-    # All run steps default to this directory
     defaults:
       run:
         working-directory: Final_Project/dqn
@@ -33,7 +32,7 @@ jobs:
       - name: Run unit tests
         run: pytest -q
 
-      - name: Build & smoke‑run Docker
+      - name: Build & smoke-run Docker
         run: |
           docker build -t dqn:test .
           docker run --rm dqn:test --actors 1 --episodes 1000 --wave 100
