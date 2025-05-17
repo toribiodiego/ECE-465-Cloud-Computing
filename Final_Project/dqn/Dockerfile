@@ -1,15 +1,17 @@
+# Dockerfile
+
 FROM python:3.10-slim
 
-# 1) set workdir
 WORKDIR /app
 
-# 2) copy requirements and install
+# Install both Ray+DQN deps and your own requirements
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir ray[default] torch matplotlib \
+    && pip install --no-cache-dir -r requirements.txt
 
-# 3) copy your code
-COPY . .
+# Copy your code in
+COPY phase3.py .
 
-# 4) entrypoint so args pass through
-ENTRYPOINT ["python", "/app/phase3.py"]
-CMD []
+# Default entrypoint just runs with your built-in defaults:
+CMD ["python", "/app/phase3.py"]
