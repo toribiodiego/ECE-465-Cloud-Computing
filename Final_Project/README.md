@@ -3,27 +3,12 @@
 
 
 ### Objective  
-Our goal is to overcome CPU-bound limitations in distributed training by harnessing Ray for efficient hyperparameter tuning and containerizing our workflow with Kubernetes. This project aims to build a scalable framework that can transition from simpler tasks, like tuning on MNIST, to more complex challenges such as reinforcement learning.
+We address CPU-bound bottlenecks in reinforcement-learning training by building a scalable workflow that uses Ray for distributed roll-outs and Kubernetes for containerized deployment. Our aim is to demonstrate near-linear speed-up across multiple cores while preserving final policy quality, using a Tic-Tac-Toe Deep Q-Network (DQN) as a reproducible benchmark.
 
 
 
 ### Approach  
-We begin by integrating Ray Tune to execute parallel hyperparameter searches on the MNIST dataset across multiple CPU cores. Once we establish a robust local workflow, we plan to containerize our process with Kubernetes, enabling deployment on cloud infrastructure with significantly more computing power. This setup will not only streamline the tuning process but also set the stage for scaling to CPU-intensive applications, including reinforcement learning tasks.
-
-
-### Progress
-
-- [x] **Parallel Hyperparameter Tuning with Ray:**  
-  Set up and run distributed hyperparameter tuning on the MNIST dataset using Ray Tune.
-
-- [x] **Containerization:**  
-  Containerized the entire workflow and deployed it on a Minikube Kubernetes cluster.
-
-- [ ] **Scaling on Cloud Infrastructure:**  
-  Plan to extend containerization to a full cloud-based Kubernetes deployment using RayKube.
-
-- [ ] **Transition to Reinforcement Learning:**  
-  Aim to apply the established framework to CPU-intensive reinforcement learning tasks.
+We refactored a single-CPU Q-table baseline into a distributed DQN that launches one head process and $k$ Ray actors to collect experience in parallel. We package the entire pipeline—including Python 3.10, Gym 0.26, Ray ≥ 2.0, and PyTorch ≥ 1.12—into a Docker image, then validate identical execution on a local Minikube cluster and a 12-vCPU Paperspace C7 instance managed by the Ray Operator. We sweep $k\in\{1,2,4,8,12\}$, log wall-clock time, episodes per second, and gradient updates, and evaluate checkpoints against uniform-random and self-play opponents.
 
 
 ### Directory Structure
@@ -44,7 +29,7 @@ We begin by integrating Ray Tune to execute parallel hyperparameter searches on 
 <br>
 
 ### Results
-
+Distributed roll-outs cut the time to train 100 k episodes from 295.8 s ($k=1$) to 228.6 s ($k=12$), yielding a 1.29× speed-up and throughput growth from 338 eps/s to 438 eps/s. Speed-up remains near-linear through $k=8$ (1.29×) before flattening, indicating diminishing returns due to CPU contention. Policy performance at 100 k episodes remained consistent across $k$: the agent won 60–65 % of games when moving first and 31–35 % when moving second, with mirrored self-play confirming a strong first-move bias. These findings validate that parallelism accelerates convergence without degrading final strategy quality.
 
 <br>
 
