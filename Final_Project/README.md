@@ -15,15 +15,32 @@ We refactored a single-CPU Q-table baseline into a distributed DQN that launches
 
 ```
 .
-├── Dockerfile
 ├── README.md
-├── deployment.yaml
-├── documentation.md
-├── main.py
-├── notebooks
-│   └── train.ipynb
-├── requirements.txt
-└── service.yaml
+├── baseline-ql
+│   ├── 1a.py
+│   ├── 1b.py
+│   ├── figures
+│   ├── phase1.py
+│   └── requirements.txt
+├── distributed-ql
+│   ├── phase2.py
+│   └── requirements.txt
+├── dqn
+│   ├── Dockerfile
+│   ├── dqn-local.yaml
+│   ├── phase3.py
+│   ├── requirements.txt
+│   └── run.sh
+├── hyperparam-tuning
+│   ├── Dockerfile
+│   ├── deployment.yaml
+│   ├── documentation.md
+│   ├── main.py
+│   ├── notebooks
+│   │   └── train.ipynb
+│   ├── requirements.txt
+│   └── service.yaml
+└── reproduction.md
 ```
 
 <br>
@@ -33,7 +50,3 @@ Distributed roll-outs cut the time to train 100 k episodes from 295.8 s ($k=1$) 
 
 <br>
 
-### References
-
-
-<br>
